@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp Session Manager — API Documentation</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #161b22;
+      --surface-2: #1c2230;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #25d366;
+      --accent-dim: #1da851;
+      --blue: #58a6ff;
+      --orange: #f0883e;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --yellow: #e3b341;
+      --cyan: #56d4dd;
+      --code-bg: #0d1117;
+      --get: #58a6ff;
+      --post: #25d366;
+      --delete: #f85149;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 100;
+      transition: transform .3s;
+    }
+    .sidebar-header {
+      padding: 24px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-header h1 {
+      font-size: 16px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sidebar-header .version {
+      font-size: 11px;
+      background: var(--accent-dim);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .sidebar nav {
+      padding: 12px 0;
+    }
+    .nav-group {
+      margin-bottom: 8px;
+    }
+    .nav-group-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      padding: 8px 20px 4px;
+      font-weight: 600;
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: all .15s;
+      cursor: pointer;
+    }
+    .nav-link:hover {
+      color: var(--text);
+      background: var(--surface-2);
+      text-decoration: none;
+    }
+    .nav-link.active {
+      color: var(--accent);
+      background: rgba(37, 211, 102, 0.08);
+      border-right: 2px solid var(--accent);
+    }
+    .method-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .method-dot.get { background: var(--get); }
+    .method-dot.post { background: var(--post); }
+    .method-dot.delete { background: var(--delete); }
+
+    /* Main */
+    .main {
+      margin-left: 280px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Top Bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      background: rgba(15, 17, 23, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 40px;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar .base-url {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--surface);
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* Content */
+    .content {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 60px 0 40px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 48px;
+    }
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 24px;
+    }
+    .hero-badges {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .badge {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      background: var(--surface);
+    }
+    .badge strong { color: var(--text); }
+
+    /* Section */
+    .section {
+      margin-bottom: 56px;
+      scroll-margin-top: 80px;
+    }
+    .section h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .section h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 24px 0 12px;
+      color: var(--text);
+    }
+    .section p, .section ul, .section ol {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .section ul, .section ol {
+      padding-left: 24px;
+    }
+    .section li {
+      margin-bottom: 6px;
+    }
+
+    /* Endpoint Card */
+    .endpoint {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      scroll-margin-top: 80px;
+    }
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background .15s;
+    }
+    .endpoint-header:hover {
+      background: var(--surface-2);
+    }
+    .method-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      flex-shrink: 0;
+    }
+    .method-badge.get {
+      color: var(--get);
+      background: rgba(88, 166, 255, 0.12);
+      border: 1px solid rgba(88, 166, 255, 0.25);
+    }
+    .method-badge.post {
+      color: var(--post);
+      background: rgba(37, 211, 102, 0.12);
+      border: 1px solid rgba(37, 211, 102, 0.25);
+    }
+    .method-badge.delete {
+      color: var(--delete);
+      background: rgba(248, 81, 73, 0.12);
+      border: 1px solid rgba(248, 81, 73, 0.25);
+    }
+    .endpoint-path {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .endpoint-desc {
+      margin-left: auto;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .endpoint-toggle {
+      color: var(--text-muted);
+      font-size: 18px;
+      transition: transform .2s;
+      margin-left: 8px;
+    }
+    .endpoint.open .endpoint-toggle {
+      transform: rotate(180deg);
+    }
+    .endpoint-body {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding: 20px;
+    }
+    .endpoint.open .endpoint-body {
+      display: block;
+    }
+    .endpoint-body h4 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin: 16px 0 8px;
+      font-weight: 600;
+    }
+    .endpoint-body h4:first-child {
+      margin-top: 0;
+    }
+
+    /* Param table */
+    .params-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .params-table th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+    }
+    .params-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(48, 54, 61, 0.5);
+      vertical-align: top;
+    }
+    .params-table .param-name {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      color: var(--cyan);
+      font-size: 13px;
+    }
+    .params-table .param-type {
+      font-size: 12px;
+      color: var(--purple);
+    }
+    .params-table .param-required {
+      font-size: 11px;
+      color: var(--orange);
+      font-weight: 600;
+    }
+    .params-table .param-optional {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .params-table .param-desc {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* Code blocks */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    pre .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--surface-2);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    pre:hover .copy-btn { opacity: 1; }
+    pre .copy-btn:hover { color: var(--text); }
+    code { font-family: inherit; }
+    .inline-code {
+      background: var(--surface-2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 13px;
+      color: var(--cyan);
+    }
+
+    /* JSON syntax */
+    .json-key { color: var(--blue); }
+    .json-str { color: var(--accent); }
+    .json-num { color: var(--orange); }
+    .json-bool { color: var(--purple); }
+    .json-null { color: var(--red); }
+
+    /* Info box */
+    .info-box {
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .info-box.note {
+      background: rgba(88, 166, 255, 0.08);
+      border: 1px solid rgba(88, 166, 255, 0.2);
+      color: var(--blue);
+    }
+    .info-box.warning {
+      background: rgba(240, 136, 62, 0.08);
+      border: 1px solid rgba(240, 136, 62, 0.2);
+      color: var(--orange);
+    }
+    .info-box.success {
+      background: rgba(37, 211, 102, 0.08);
+      border: 1px solid rgba(37, 211, 102, 0.2);
+      color: var(--accent);
+    }
+    .info-box .icon { font-size: 18px; flex-shrink: 0; }
+
+    /* WebSocket event card */
+    .ws-event {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .ws-event-name {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 14px;
+      color: var(--purple);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .ws-event p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    /* Config table */
+    .config-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .config-table th {
+      text-align: left;
+      padding: 10px 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .config-table td {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .config-table td:first-child {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      color: var(--cyan);
+    }
+
+    /* Response format */
+    .response-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .response-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .response-card-title {
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .response-card-title.success-title {
+      color: var(--accent);
+      background: rgba(37, 211, 102, 0.05);
+    }
+    .response-card-title.error-title {
+      color: var(--red);
+      background: rgba(248, 81, 73, 0.05);
+    }
+    .response-card pre {
+      border: none;
+      border-radius: 0;
+      margin: 0;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .hamburger { display: block; }
+      .content { padding: 20px; }
+      .hero h1 { font-size: 24px; }
+      .hero p { font-size: 15px; }
+      .response-grid { grid-template-columns: 1fr; }
+      .endpoint-desc { display: none; }
+      .topbar { padding: 12px 20px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h1>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.372-.01-.571-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.75.75 0 00.917.918l4.458-1.495A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.34 0-4.508-.764-6.258-2.056l-.438-.336-3.224 1.081 1.081-3.224-.336-.438A9.957 9.957 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          WA Session Manager
+          <span class="version">v1.0.0</span>
+        </h1>
+      </div>
+      <nav>
+        <div class="nav-group">
+          <div class="nav-group-title">Getting Started</div>
+          <a href="#overview" class="nav-link active">Overview</a>
+          <a href="#authentication" class="nav-link">Authentication</a>
+          <a href="#base-url" class="nav-link">Base URL</a>
+          <a href="#response-format" class="nav-link">Response Format</a>
+          <a href="#rate-limiting" class="nav-link">Rate Limiting</a>
+          <a href="#error-handling" class="nav-link">Error Handling</a>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">REST API Endpoints</div>
+          <a href="#health-check" class="nav-link"><span class="method-dot get"></span> Health Check</a>
+          <a href="#create-session" class="nav-link"><span class="method-dot post"></span> Create Session</a>
+          <a href="#get-status" class="nav-link"><span class="method-dot get"></span> Get Status</a>
+          <a href="#list-sessions" class="nav-link"><span class="method-dot get"></span> List Sessions</a>
+          <a href="#check-number" class="nav-link"><span class="method-dot post"></span> Check Number</a>
+          <a href="#delete-session" class="nav-link"><span class="method-dot delete"></span> Delete Session</a>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">WebSocket</div>
+          <a href="#websocket" class="nav-link">Connection</a>
+          <a href="#ws-events" class="nav-link">Events</a>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">Guides</div>
+          <a href="#pairing-methods" class="nav-link">Pairing Methods</a>
+          <a href="#configuration" class="nav-link">Configuration</a>
+          <a href="#project-structure" class="nav-link">Project Structure</a>
+          <a href="#deployment" class="nav-link">Deployment</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="topbar">
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <div class="base-url" id="baseUrlDisplay">http://localhost:3000</div>
+        <a href="/panel/" style="font-size: 13px;">Test Panel &rarr;</a>
+      </div>
+
+      <div class="content">
+        <!-- Hero -->
+        <div class="hero">
+          <h1>WhatsApp <span>Session Manager</span> API</h1>
+          <p>Production-ready multi-session WhatsApp API powered by Baileys, with real-time WebSocket updates, dual pairing methods, and session lifecycle management.</p>
+          <div class="hero-badges">
+            <span class="badge"><strong>Node.js</strong> &nbsp;ESM</span>
+            <span class="badge"><strong>Express</strong> &nbsp;4.x</span>
+            <span class="badge"><strong>Baileys</strong> &nbsp;6.x</span>
+            <span class="badge"><strong>Socket.IO</strong> &nbsp;4.x</span>
+            <span class="badge"><strong>QR</strong> + <strong>Pairing Code</strong></span>
+          </div>
+        </div>
+
+        <!-- Overview -->
+        <div class="section" id="overview">
+          <h2>Overview</h2>
+          <p>WhatsApp Session Manager adalah REST API yang memungkinkan Anda mengelola banyak sesi WhatsApp secara bersamaan. Setiap sesi memiliki lifecycle independen, autentikasi tersimpan di file system, dan update real-time melalui WebSocket.</p>
+          <h3>Fitur Utama</h3>
+          <ul>
+            <li><strong>Multi-Session</strong> — Kelola banyak sesi WhatsApp dalam satu server</li>
+            <li><strong>Dual Pairing</strong> — Hubungkan via QR Code atau Pairing Code (notifikasi WhatsApp)</li>
+            <li><strong>Real-time Updates</strong> — QR, status koneksi, pairing code via Socket.IO</li>
+            <li><strong>Number Validation</strong> — Cek apakah nomor terdaftar di WhatsApp</li>
+            <li><strong>Session Persistence</strong> — Autentikasi disimpan di file system, auto-reconnect saat restart</li>
+            <li><strong>API Key Auth</strong> — Mendukung multiple API keys via header</li>
+            <li><strong>Rate Limiting</strong> — Proteksi request berlebihan</li>
+            <li><strong>Production Ready</strong> — Error handling, graceful shutdown, logging dengan Pino</li>
+          </ul>
+        </div>
+
+        <!-- Authentication -->
+        <div class="section" id="authentication">
+          <h2>Authentication</h2>
+          <p>Semua endpoint di bawah <span class="inline-code">/api/*</span> memerlukan API key. Kirim API key melalui header <span class="inline-code">x-api-key</span>.</p>
+
+          <div class="info-box note">
+            <span class="icon">ℹ️</span>
+            <div>Jika variabel <span class="inline-code">API_KEYS</span> di <span class="inline-code">.env</span> dikosongkan, autentikasi akan di-bypass (berguna untuk development).</div>
+          </div>
+
+          <h4>Contoh Header</h4>
+<pre><code>x-api-key: your-api-key-1</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+          <h4>Konfigurasi Multiple Keys</h4>
+<pre><code><span class="json-key"># .env</span>
+API_KEYS=key-satu,key-dua,key-tiga</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+          <h4>Response Jika Tidak Terautentikasi</h4>
+<pre><code>{
+  <span class="json-key">"success"</span>: <span class="json-bool">false</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"API key is required. Provide it via x-api-key header."</span>
+}</code></pre>
+        </div>
+
+        <!-- Base URL -->
+        <div class="section" id="base-url">
+          <h2>Base URL</h2>
+          <p>Secara default, server berjalan di:</p>
+<pre><code>http://localhost:3000</code></pre>
+          <p>Prefix untuk semua API session endpoint:</p>
+<pre><code>/api/session</code></pre>
+          <p>Contoh URL lengkap:</p>
+<pre><code>http://localhost:3000/api/session/create</code></pre>
+        </div>
+
+        <!-- Response Format -->
+        <div class="section" id="response-format">
+          <h2>Response Format</h2>
+          <p>Semua response API menggunakan format JSON yang konsisten:</p>
+
+          <div class="response-grid">
+            <div class="response-card">
+              <div class="response-card-title success-title">✓ Success Response</div>
+<pre><code>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Operation description"</span>,
+  <span class="json-key">"data"</span>: { ... }
+}</code></pre>
+            </div>
+            <div class="response-card">
+              <div class="response-card-title error-title">✗ Error Response</div>
+<pre><code>{
+  <span class="json-key">"success"</span>: <span class="json-bool">false</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Error description"</span>
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rate Limiting -->
+        <div class="section" id="rate-limiting">
+          <h2>Rate Limiting</h2>
+          <p>API dilindungi oleh rate limiter untuk mencegah penyalahgunaan. Secara default:</p>
+          <ul>
+            <li><strong>Window:</strong> 15 menit (900.000 ms)</li>
+            <li><strong>Max Requests:</strong> 100 per window per IP</li>
+          </ul>
+          <p>Konfigurasi via environment variables:</p>
+<pre><code>RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+          <p>Response saat limit tercapai: <span class="inline-code">HTTP 429 Too Many Requests</span></p>
+        </div>
+
+        <!-- Error Handling -->
+        <div class="section" id="error-handling">
+          <h2>Error Handling</h2>
+          <p>API menggunakan HTTP status code standar:</p>
+          <table class="config-table">
+            <thead>
+              <tr>
+                <th>Status Code</th>
+                <th>Deskripsi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>200</td><td>Request berhasil</td></tr>
+              <tr><td>201</td><td>Resource berhasil dibuat</td></tr>
+              <tr><td>400</td><td>Bad Request — parameter tidak valid</td></tr>
+              <tr><td>401</td><td>Unauthorized — API key tidak valid atau tidak ada</td></tr>
+              <tr><td>404</td><td>Not Found — session/resource tidak ditemukan</td></tr>
+              <tr><td>429</td><td>Too Many Requests — rate limit tercapai</td></tr>
+              <tr><td>500</td><td>Internal Server Error — error di server</td></tr>
+            </tbody>
+          </table>
+          <div class="info-box warning">
+            <span class="icon">⚠️</span>
+            <div>Di production mode (<span class="inline-code">NODE_ENV=production</span>), pesan error detail disembunyikan dan diganti "Internal server error" untuk keamanan.</div>
+          </div>
+        </div>
+
+        <!-- ======== ENDPOINTS ======== -->
+
+        <!-- Health Check -->
+        <div class="section" id="health-check">
+          <h2>Endpoints</h2>
+
+          <div class="endpoint open" id="ep-health">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+              <span class="method-badge get">GET</span>
+              <span class="endpoint-path">/health</span>
+              <span class="endpoint-desc">Cek status server</span>
+              <span class="endpoint-toggle">▼</span>
+            </div>
+            <div class="endpoint-body">
+              <div class="info-box success">
+                <span class="icon">🔓</span>
+                <div>Endpoint ini <strong>tidak memerlukan</strong> API key.</div>
+              </div>
+              <h4>Description</h4>
+              <p>Memeriksa apakah server berjalan normal. Mengembalikan uptime, timestamp, dan penggunaan memori.</p>
+
+              <h4>cURL Example</h4>
+<pre><code>curl http://localhost:3000/health</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+              <h4>Response — 200 OK</h4>
+<pre><code>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"OK"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"uptime"</span>: <span class="json-num">1234</span>,
+    <span class="json-key">"timestamp"</span>: <span class="json-str">"2026-02-25T10:30:00.000Z"</span>,
+    <span class="json-key">"memoryUsage"</span>: <span class="json-num">52428800</span>
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create Session -->
+        <div class="section" id="create-session">
+          <div class="endpoint" id="ep-create">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+              <span class="method-badge post">POST</span>
+              <span class="endpoint-path">/api/session/create</span>
+              <span class="endpoint-desc">Buat sesi WhatsApp baru</span>
+              <span class="endpoint-toggle">▼</span>
+            </div>
+            <div class="endpoint-body">
+              <h4>Description</h4>
+              <p>Membuat sesi WhatsApp baru. Mendukung dua metode pairing: QR code (default) dan pairing code via notifikasi WhatsApp. Jika <span class="inline-code">sessionId</span> tidak dikirim, akan digenerate UUID otomatis.</p>
+
+              <h4>Headers</h4>
+              <table class="params-table">
+                <thead><tr><th>Header</th><th>Value</th></tr></thead>
+                <tbody>
+                  <tr><td class="param-name">Content-Type</td><td>application/json</td></tr>
+                  <tr><td class="param-name">x-api-key</td><td>your-api-key</td></tr>
+                </tbody>
+              </table>
+
+              <h4>Request Body</h4>
+              <table class="params-table">
+                <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="param-name">sessionId</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-optional">optional</span></td>
+                    <td class="param-desc">ID sesi (alfanumerik, -, _). Auto-generate UUID jika kosong.</td>
+                  </tr>
+                  <tr>
+                    <td class="param-name">pairingMethod</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-optional">optional</span></td>
+                    <td class="param-desc">Metode pairing: <span class="inline-code">"qr"</span> (default) atau <span class="inline-code">"code"</span></td>
+                  </tr>
+                  <tr>
+                    <td class="param-name">phoneNumber</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-required">required if code</span></td>
+                    <td class="param-desc">Nomor telepon format E.164 tanpa + (contoh: 628123456789). Wajib jika pairingMethod = "code".</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4>cURL — QR Code Method</h4>
+<pre><code>curl -X POST http://localhost:3000/api/session/create \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key" \
+  -d '{"sessionId": "my-session", "pairingMethod": "qr"}'</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+              <h4>cURL — Pairing Code Method</h4>
+<pre><code>curl -X POST http://localhost:3000/api/session/create \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key" \
+  -d '{"sessionId": "my-session", "pairingMethod": "code", "phoneNumber": "628123456789"}'</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+              <h4>Response — 201 Created</h4>
+<pre><code>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Session created"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"sessionId"</span>: <span class="json-str">"my-session"</span>,
+    <span class="json-key">"pairingMethod"</span>: <span class="json-str">"qr"</span>,
+    <span class="json-key">"message"</span>: <span class="json-str">"Session created. Listen to WebSocket for QR/pairing events."</span>
+  }
+}</code></pre>
+
+              <h4>Errors</h4>
+              <table class="params-table">
+                <thead><tr><th>Status</th><th>Condition</th></tr></thead>
+                <tbody>
+                  <tr><td>400</td><td>Invalid sessionId format</td></tr>
+                  <tr><td>400</td><td>Invalid pairingMethod (bukan "qr" atau "code")</td></tr>
+                  <tr><td>400</td><td>phoneNumber diperlukan tapi tidak ada (method "code")</td></tr>
+                  <tr><td>400</td><td>Format phoneNumber tidak valid</td></tr>
+                  <tr><td>401</td><td>API key tidak valid</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Get Status -->
+        <div class="section" id="get-status">
+          <div class="endpoint" id="ep-status">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+              <span class="method-badge get">GET</span>
+              <span class="endpoint-path">/api/session/status/:sessionId</span>
+              <span class="endpoint-desc">Dapatkan status sesi</span>
+              <span class="endpoint-toggle">▼</span>
+            </div>
+            <div class="endpoint-body">
+              <h4>Description</h4>
+              <p>Mengembalikan status koneksi dari sesi WhatsApp tertentu.</p>
+
+              <h4>URL Parameters</h4>
+              <table class="params-table">
+                <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="param-name">sessionId</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-required">required</span></td>
+                    <td class="param-desc">ID sesi yang ingin dicek</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4>cURL Example</h4>
+<pre><code>curl http://localhost:3000/api/session/status/my-session \
+  -H "x-api-key: your-api-key"</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+              <h4>Response — 200 OK (Connected)</h4>
+<pre><code>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Session status retrieved"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"sessionId"</span>: <span class="json-str">"my-session"</span>,
+    <span class="json-key">"status"</span>: <span class="json-str">"connected"</span>,
+    <span class="json-key">"user"</span>: {
+      <span class="json-key">"id"</span>: <span class="json-str">"628123456789:42@s.whatsapp.net"</span>,
+      <span class="json-key">"name"</span>: <span class="json-str">"John Doe"</span>
+    }
+  }
+}</code></pre>
+
+              <h4>Response — 200 OK (Not Found)</h4>
+<pre><code>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Session status retrieved"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"sessionId"</span>: <span class="json-str">"my-session"</span>,
+    <span class="json-key">"status"</span>: <span class="json-str">"not_found"</span>
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- List Sessions -->
+        <div class="section" id="list-sessions">
+          <div class="endpoint" id="ep-list">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+              <span class="method-badge get">GET</span>
+              <span class="endpoint-path">/api/session/list</span>
+              <span class="endpoint-desc">Daftar semua sesi aktif</span>
+              <span class="endpoint-toggle">▼</span>
+            </div>
+            <div class="endpoint-body">
+              <h4>Description</h4>
+              <p>Mengembalikan daftar semua sesi WhatsApp yang sedang aktif beserta statusnya.</p>
+
+              <h4>cURL Example</h4>
+<pre><code>curl http://localhost:3000/api/session/list \
+  -H "x-api-key: your-api-key"</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+              <h4>Response — 200 OK</h4>
+<pre><code>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Sessions retrieved"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"sessions"</span>: [
+      {
+        <span class="json-key">"sessionId"</span>: <span class="json-str">"session-1"</span>,
+        <span class="json-key">"status"</span>: <span class="json-str">"connected"</span>,
+        <span class="json-key">"user"</span>: { <span class="json-key">"id"</span>: <span class="json-str">"628xxx@s.whatsapp.net"</span>, <span class="json-key">"name"</span>: <span class="json-str">"User 1"</span> }
+      },
+      {
+        <span class="json-key">"sessionId"</span>: <span class="json-str">"session-2"</span>,
+        <span class="json-key">"status"</span>: <span class="json-str">"connecting"</span>
+      }
+    ]
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Check Number -->
+        <div class="section" id="check-number">
+          <div class="endpoint" id="ep-check">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+              <span class="method-badge post">POST</span>
+              <span class="endpoint-path">/api/session/check-number</span>
+              <span class="endpoint-desc">Validasi nomor WhatsApp</span>
+              <span class="endpoint-toggle">▼</span>
+            </div>
+            <div class="endpoint-body">
+              <h4>Description</h4>
+              <p>Memeriksa apakah nomor telepon terdaftar di WhatsApp. Memerlukan sesi yang sudah terhubung (connected).</p>
+
+              <h4>Request Body</h4>
+              <table class="params-table">
+                <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="param-name">sessionId</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-required">required</span></td>
+                    <td class="param-desc">ID sesi yang sudah connected</td>
+                  </tr>
+                  <tr>
+                    <td class="param-name">number</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-required">required</span></td>
+                    <td class="param-desc">Nomor telepon format E.164 tanpa + (contoh: 628123456789)</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4>cURL Example</h4>
+<pre><code>curl -X POST http://localhost:3000/api/session/check-number \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key" \
+  -d '{"sessionId": "my-session", "number": "628123456789"}'</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+              <h4>Response — 200 OK (Registered)</h4>
+<pre><code>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Number check completed"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"number"</span>: <span class="json-str">"628123456789"</span>,
+    <span class="json-key">"exists"</span>: <span class="json-bool">true</span>,
+    <span class="json-key">"jid"</span>: <span class="json-str">"628123456789@s.whatsapp.net"</span>
+  }
+}</code></pre>
+
+              <h4>Response — 200 OK (Not Registered)</h4>
+<pre><code>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Number check completed"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"number"</span>: <span class="json-str">"628123456789"</span>,
+    <span class="json-key">"exists"</span>: <span class="json-bool">false</span>,
+    <span class="json-key">"jid"</span>: <span class="json-null">null</span>
+  }
+}</code></pre>
+
+              <h4>Errors</h4>
+              <table class="params-table">
+                <thead><tr><th>Status</th><th>Condition</th></tr></thead>
+                <tbody>
+                  <tr><td>400</td><td>sessionId atau number kosong</td></tr>
+                  <tr><td>400</td><td>Format nomor tidak valid (kurang dari 7 atau lebih dari 15 digit)</td></tr>
+                  <tr><td>404</td><td>Session tidak ditemukan atau tidak connected</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete Session -->
+        <div class="section" id="delete-session">
+          <div class="endpoint" id="ep-delete">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+              <span class="method-badge delete">DELETE</span>
+              <span class="endpoint-path">/api/session/:sessionId</span>
+              <span class="endpoint-desc">Hapus sesi</span>
+              <span class="endpoint-toggle">▼</span>
+            </div>
+            <div class="endpoint-body">
+              <h4>Description</h4>
+              <p>Menghapus sesi WhatsApp, menutup koneksi, dan menghapus data autentikasi dari file system.</p>
+
+              <h4>URL Parameters</h4>
+              <table class="params-table">
+                <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="param-name">sessionId</td>
+                    <td class="param-type">string</td>
+                    <td><span class="param-required">required</span></td>
+                    <td class="param-desc">ID sesi yang ingin dihapus</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4>cURL Example</h4>
+<pre><code>curl -X DELETE http://localhost:3000/api/session/my-session \
+  -H "x-api-key: your-api-key"</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+              <h4>Response — 200 OK</h4>
+<pre><code>{
+  <span class="json-key">"success"</span>: <span class="json-bool">true</span>,
+  <span class="json-key">"message"</span>: <span class="json-str">"Session deleted"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"sessionId"</span>: <span class="json-str">"my-session"</span>,
+    <span class="json-key">"deleted"</span>: <span class="json-bool">true</span>
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- WebSocket -->
+        <div class="section" id="websocket">
+          <h2>WebSocket (Socket.IO)</h2>
+          <p>Aplikasi menggunakan <strong>Socket.IO</strong> dengan <strong>dynamic namespaces</strong> untuk update real-time per sesi. Setiap sesi memiliki namespace sendiri berdasarkan session ID.</p>
+
+          <h3>Connection</h3>
+          <p>Untuk menerima event dari sesi tertentu, hubungkan ke namespace <span class="inline-code">/{sessionId}</span>:</p>
+
+<pre><code><span class="json-key">// JavaScript (Browser)</span>
+import { io } from <span class="json-str">"socket.io-client"</span>;
+
+const socket = io(<span class="json-str">"http://localhost:3000/my-session"</span>);
+
+socket.on(<span class="json-str">"connect"</span>, () => {
+  console.log(<span class="json-str">"Connected to session namespace"</span>);
+});
+
+socket.on(<span class="json-str">"disconnect"</span>, (reason) => {
+  console.log(<span class="json-str">"Disconnected:"</span>, reason);
+});</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+          <div class="info-box note">
+            <span class="icon">ℹ️</span>
+            <div>Socket.IO dynamic namespaces menerima koneksi ke path apapun. Namespace otomatis dibuat berdasarkan session ID saat pertama kali client terhubung.</div>
+          </div>
+        </div>
+
+        <!-- WebSocket Events -->
+        <div class="section" id="ws-events">
+          <h3>Events</h3>
+          <p>Berikut adalah event yang di-emit oleh server ke client melalui namespace sesi:</p>
+
+          <div class="ws-event">
+            <div class="ws-event-name">qr</div>
+            <p>Dikirim saat QR code tersedia untuk di-scan. QR dikirim sebagai base64 data URL yang bisa langsung ditampilkan di <span class="inline-code">&lt;img&gt;</span> tag. Event ini dikirim berkali-kali (max 5x) jika QR tidak di-scan dan expired.</p>
+<pre><code>{
+  <span class="json-key">"qr"</span>: <span class="json-str">"data:image/png;base64,iVBORw0KGg..."</span>
+}</code></pre>
+          </div>
+
+          <div class="ws-event">
+            <div class="ws-event-name">pairing_code</div>
+            <p>Dikirim saat pairing code berhasil di-request (method: "code"). User harus memasukkan kode ini di WhatsApp: <em>Linked Devices → Link with phone number</em>.</p>
+<pre><code>{
+  <span class="json-key">"code"</span>: <span class="json-str">"ABCD-EFGH"</span>,
+  <span class="json-key">"phoneNumber"</span>: <span class="json-str">"628123456789"</span>
+}</code></pre>
+          </div>
+
+          <div class="ws-event">
+            <div class="ws-event-name">connected</div>
+            <p>Dikirim saat sesi berhasil terhubung ke WhatsApp. Berisi informasi user yang terkoneksi.</p>
+<pre><code>{
+  <span class="json-key">"user"</span>: {
+    <span class="json-key">"id"</span>: <span class="json-str">"628123456789:42@s.whatsapp.net"</span>,
+    <span class="json-key">"name"</span>: <span class="json-str">"John Doe"</span>
+  }
+}</code></pre>
+          </div>
+
+          <div class="ws-event">
+            <div class="ws-event-name">disconnected</div>
+            <p>Dikirim saat sesi terputus dari WhatsApp, baik karena logout, error, atau dihapus.</p>
+<pre><code>{
+  <span class="json-key">"reason"</span>: <span class="json-str">"loggedOut"</span>
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- Pairing Methods -->
+        <div class="section" id="pairing-methods">
+          <h2>Panduan Pairing Methods</h2>
+
+          <h3>Metode 1 — QR Code (Default)</h3>
+          <p>Cara paling umum untuk menghubungkan WhatsApp:</p>
+          <ol>
+            <li>Buat sesi dengan <span class="inline-code">pairingMethod: "qr"</span> (atau kosongkan)</li>
+            <li>Hubungkan ke WebSocket namespace <span class="inline-code">/{sessionId}</span></li>
+            <li>Terima event <span class="inline-code">qr</span> dan tampilkan QR code</li>
+            <li>Scan QR code dari WhatsApp → <em>Linked Devices → Link a Device</em></li>
+            <li>Terima event <span class="inline-code">connected</span> saat berhasil</li>
+          </ol>
+
+          <div class="info-box warning">
+            <span class="icon">⚠️</span>
+            <div>QR code expire setelah ~60 detik. Server akan otomatis mengirim QR baru (max 5 kali). Jika semua QR expire, sesi akan dihapus.</div>
+          </div>
+
+          <h3>Metode 2 — Pairing Code</h3>
+          <p>Metode alternatif menggunakan kode 8 digit yang dimasukkan langsung di WhatsApp:</p>
+          <ol>
+            <li>Buat sesi dengan <span class="inline-code">pairingMethod: "code"</span> dan <span class="inline-code">phoneNumber</span></li>
+            <li>Hubungkan ke WebSocket namespace <span class="inline-code">/{sessionId}</span></li>
+            <li>Terima event <span class="inline-code">pairing_code</span> berisi kode 8 digit</li>
+            <li>Di WhatsApp mobile: <em>Linked Devices → Link a Device → Link with phone number instead</em></li>
+            <li>Masukkan kode pairing</li>
+            <li>Terima event <span class="inline-code">connected</span> saat berhasil</li>
+          </ol>
+
+          <div class="info-box note">
+            <span class="icon">ℹ️</span>
+            <div>Pairing code lebih mudah untuk integrasi di mana user tidak bisa scan QR (misalnya CLI, bot setup, remote server). Kode dikirimkan sebagai notifikasi ke nomor WhatsApp yang dituju.</div>
+          </div>
+        </div>
+
+        <!-- Configuration -->
+        <div class="section" id="configuration">
+          <h2>Configuration</h2>
+          <p>Semua konfigurasi dilakukan melalui file <span class="inline-code">.env</span>. Berikut daftar lengkap variabel:</p>
+
+          <table class="config-table">
+            <thead>
+              <tr>
+                <th>Variable</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>PORT</td>
+                <td>3000</td>
+                <td>Port server</td>
+              </tr>
+              <tr>
+                <td>HOST</td>
+                <td>0.0.0.0</td>
+                <td>Host binding (0.0.0.0 = semua interface)</td>
+              </tr>
+              <tr>
+                <td>API_KEYS</td>
+                <td><em>empty</em></td>
+                <td>API keys, pisahkan dengan koma. Kosongkan untuk disable auth.</td>
+              </tr>
+              <tr>
+                <td>CORS_ORIGIN</td>
+                <td>*</td>
+                <td>Allowed CORS origins</td>
+              </tr>
+              <tr>
+                <td>LOG_LEVEL</td>
+                <td>info</td>
+                <td>Pino log level (trace, debug, info, warn, error, fatal)</td>
+              </tr>
+              <tr>
+                <td>SESSIONS_DIR</td>
+                <td>./sessions</td>
+                <td>Direktori penyimpanan data autentikasi sesi</td>
+              </tr>
+              <tr>
+                <td>RATE_LIMIT_WINDOW_MS</td>
+                <td>900000</td>
+                <td>Rate limit window dalam ms (default: 15 menit)</td>
+              </tr>
+              <tr>
+                <td>RATE_LIMIT_MAX</td>
+                <td>100</td>
+                <td>Max request per window per IP</td>
+              </tr>
+              <tr>
+                <td>NODE_ENV</td>
+                <td>development</td>
+                <td>Environment mode (production menyembunyikan detail error)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>Contoh .env</h4>
+<pre><code><span class="json-key"># Server</span>
+PORT=3000
+HOST=0.0.0.0
+
+<span class="json-key"># Auth</span>
+API_KEYS=sk-live-abc123,sk-live-def456
+
+<span class="json-key"># CORS</span>
+CORS_ORIGIN=https://myapp.com
+
+<span class="json-key"># Logging</span>
+LOG_LEVEL=info
+
+<span class="json-key"># Sessions</span>
+SESSIONS_DIR=./sessions
+
+<span class="json-key"># Rate Limiting</span>
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+        </div>
+
+        <!-- Project Structure -->
+        <div class="section" id="project-structure">
+          <h2>Project Structure</h2>
+<pre><code>nova-project/
+├── server.js               <span class="json-key"># Entry point: HTTP + Socket.IO server</span>
+├── package.json
+├── .env                    <span class="json-key"># Environment variables</span>
+├── .gitignore
+├── vitest.config.js        <span class="json-key"># Test configuration</span>
+├── README.md
+│
+├── src/
+│   ├── app.js              <span class="json-key"># Express app setup + middleware</span>
+│   ├── config/
+│   │   └── index.js        <span class="json-key"># Environment config parser</span>
+│   ├── controllers/
+│   │   └── sessionController.js  <span class="json-key"># Request handlers + validation</span>
+│   ├── middlewares/
+│   │   ├── apiKeyAuth.js   <span class="json-key"># API key authentication</span>
+│   │   ├── errorHandler.js <span class="json-key"># Global error handler</span>
+│   │   └── rateLimiter.js  <span class="json-key"># Rate limiter middleware</span>
+│   ├── routes/
+│   │   ├── healthRoutes.js <span class="json-key"># GET /health</span>
+│   │   └── sessionRoutes.js <span class="json-key"># /api/session/* routes</span>
+│   ├── services/
+│   │   └── sessionManager.js <span class="json-key"># Core Baileys session lifecycle</span>
+│   ├── sockets/
+│   │   └── index.js        <span class="json-key"># Socket.IO dynamic namespaces</span>
+│   ├── utils/
+│   │   ├── logger.js       <span class="json-key"># Pino logger</span>
+│   │   └── response.js     <span class="json-key"># Standardized JSON responses</span>
+│   └── views/
+│       └── docs.html       <span class="json-key"># This documentation page</span>
+│
+├── test-web/               <span class="json-key"># Frontend test panel</span>
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
+│
+├── tests/
+│   ├── unit/               <span class="json-key"># Unit tests (Vitest)</span>
+│   │   ├── config.test.js
+│   │   ├── response.test.js
+│   │   ├── apiKeyAuth.test.js
+│   │   ├── apiKeyAuthDisabled.test.js
+│   │   ├── errorHandler.test.js
+│   │   └── sessionController.test.js
+│   └── integration/
+│       └── api.test.js     <span class="json-key"># Integration tests</span>
+│
+└── sessions/               <span class="json-key"># Auto-created: session auth data</span></code></pre>
+        </div>
+
+        <!-- Deployment -->
+        <div class="section" id="deployment">
+          <h2>Deployment</h2>
+
+          <h3>Quick Start</h3>
+<pre><code><span class="json-key"># Clone & install</span>
+git clone &lt;repo-url&gt;
+cd nova-project
+npm install
+
+<span class="json-key"># Configure</span>
+cp .env.example .env
+<span class="json-key"># Edit .env sesuai kebutuhan</span>
+
+<span class="json-key"># Run</span>
+npm start
+
+<span class="json-key"># Development (with auto-reload)</span>
+npm run dev</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+          <h3>PM2 (Production)</h3>
+<pre><code><span class="json-key"># Install PM2</span>
+npm install -g pm2
+
+<span class="json-key"># Start with PM2</span>
+pm2 start server.js --name wa-session-manager
+
+<span class="json-key"># Auto-restart on reboot</span>
+pm2 startup
+pm2 save
+
+<span class="json-key"># Monitor</span>
+pm2 logs wa-session-manager
+pm2 monit</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+          <h3>Docker</h3>
+<pre><code><span class="json-key"># Dockerfile</span>
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+EXPOSE 3000
+CMD ["node", "server.js"]</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+<pre><code><span class="json-key"># Build & Run</span>
+docker build -t wa-session-manager .
+docker run -d \
+  --name wa-session \
+  -p 3000:3000 \
+  -v wa-sessions:/app/sessions \
+  --env-file .env \
+  wa-session-manager</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+
+          <h3>Nginx Reverse Proxy</h3>
+<pre><code>server {
+    listen 80;
+    server_name api.example.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+          <div class="info-box warning">
+            <span class="icon">⚠️</span>
+            <div>Pastikan konfigurasi Nginx mendukung WebSocket (<span class="inline-code">Upgrade</span> dan <span class="inline-code">Connection</span> headers) agar Socket.IO berjalan dengan baik.</div>
+          </div>
+
+          <h3>Testing</h3>
+<pre><code><span class="json-key"># Run all tests</span>
+npm test
+
+<span class="json-key"># Watch mode</span>
+npm run test:watch
+
+<span class="json-key"># With coverage</span>
+npm run test:coverage</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <p>WhatsApp Session Manager API v1.0.0 &mdash; Built with Node.js, Express, Baileys & Socket.IO</p>
+          <p style="margin-top: 8px;">
+            <a href="/panel/">Test Panel</a> &nbsp;·&nbsp;
+            <a href="/health">Health Check</a> &nbsp;·&nbsp;
+            <a href="#overview">Back to Top</a>
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Toggle endpoint
+    function toggleEndpoint(header) {
+      header.closest('.endpoint').classList.toggle('open');
+    }
+
+    // Copy code
+    function copyCode(btn) {
+      const pre = btn.closest('pre');
+      const code = pre.querySelector('code');
+      const text = code.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+      });
+    }
+
+    // Toggle sidebar (mobile)
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Active nav link on scroll
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = [];
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        const section = document.getElementById(href.slice(1));
+        if (section) sections.push({ el: section, link });
+      }
+    });
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          const match = sections.find(s => s.el === entry.target);
+          if (match) match.link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-80px 0px -60% 0px' });
+
+    sections.forEach(s => observer.observe(s.el));
+
+    // Close sidebar on link click (mobile)
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          document.getElementById('sidebar').classList.remove('open');
+        }
+      });
+    });
+
+    // Update base URL display
+    document.getElementById('baseUrlDisplay').textContent = window.location.origin;
+  </script>
+</body>
+</html>

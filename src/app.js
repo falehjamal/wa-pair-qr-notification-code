@@ -8,6 +8,7 @@ import { rateLimiter } from './middlewares/rateLimiter.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 import healthRoutes from './routes/healthRoutes.js';
+import docsRoutes from './routes/docsRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,6 +22,9 @@ app.use(rateLimiter);
 
 // Serve test panel static files
 app.use('/panel', express.static(path.join(__dirname, '..', 'test-web')));
+
+// API Documentation
+app.use('/docs', docsRoutes);
 
 app.use('/health', healthRoutes);
 
