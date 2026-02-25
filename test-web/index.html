@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Session Manager - Test Panel</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>📱 WhatsApp Session Manager</h1>
+    <p class="subtitle">API Test Panel</p>
+  </header>
+
+  <!-- ================================ -->
+  <!-- Connection Settings              -->
+  <!-- ================================ -->
+  <section class="card" id="settings-card">
+    <h2>⚙️ Connection Settings</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="apiUrl">API Base URL</label>
+        <input type="text" id="apiUrl" value="http://localhost:3000" placeholder="http://localhost:3000">
+      </div>
+      <div class="form-group">
+        <label for="apiKey">API Key</label>
+        <input type="text" id="apiKey" value="your-api-key-1" placeholder="x-api-key">
+      </div>
+    </div>
+    <button onclick="testHealth()" class="btn btn-secondary">🏥 Test Health</button>
+    <div id="health-result" class="result-box hidden"></div>
+  </section>
+
+  <!-- ================================ -->
+  <!-- Create Session                   -->
+  <!-- ================================ -->
+  <section class="card" id="create-card">
+    <h2>➕ Create Session</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="createSessionId">Session ID <small>(optional, auto-generated if empty)</small></label>
+        <input type="text" id="createSessionId" placeholder="my-session-1">
+      </div>
+      <div class="form-group">
+        <label for="pairingMethod">Pairing Method</label>
+        <select id="pairingMethod" onchange="togglePhoneField()">
+          <option value="qr">QR Code</option>
+          <option value="code">Pairing Code</option>
+        </select>
+      </div>
+      <div class="form-group" id="phoneGroup" style="display:none;">
+        <label for="phoneNumber">Phone Number <small>(E.164 tanpa +)</small></label>
+        <input type="text" id="phoneNumber" placeholder="628123456789">
+      </div>
+    </div>
+    <button onclick="createSession()" class="btn btn-primary">🚀 Create Session</button>
+    <div id="create-result" class="result-box hidden"></div>
+  </section>
+
+  <!-- ================================ -->
+  <!-- QR Code / Pairing Code Display    -->
+  <!-- ================================ -->
+  <section class="card" id="qr-card">
+    <h2>📷 QR Code / Pairing Code</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="qrSessionId">Session ID to Listen</label>
+        <input type="text" id="qrSessionId" placeholder="my-session-1">
+      </div>
+    </div>
+    <button onclick="connectSocket()" class="btn btn-primary" id="btnConnect">🔌 Connect WebSocket</button>
+    <button onclick="disconnectSocket()" class="btn btn-danger hidden" id="btnDisconnect">❌ Disconnect</button>
+
+    <div id="socket-status" class="status-badge hidden">Disconnected</div>
+
+    <div id="qr-display" class="qr-container hidden">
+      <img id="qr-image" src="" alt="QR Code">
+    </div>
+
+    <div id="pairing-code-display" class="pairing-code hidden">
+      <span>Pairing Code:</span>
+      <strong id="pairing-code-value"></strong>
+      <p class="hint">Masukkan kode ini di WhatsApp → Linked Devices → Link with phone number</p>
+    </div>
+
+    <div id="connected-display" class="connected-status hidden">
+      ✅ WhatsApp Terhubung!
+    </div>
+
+    <div id="socket-log" class="log-box hidden">
+      <h4>Socket Events Log</h4>
+      <div id="socket-log-content"></div>
+    </div>
+  </section>
+
+  <!-- ================================ -->
+  <!-- Session Status                   -->
+  <!-- ================================ -->
+  <section class="card" id="status-card">
+    <h2>📊 Session Status</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="statusSessionId">Session ID</label>
+        <input type="text" id="statusSessionId" placeholder="my-session-1">
+      </div>
+    </div>
+    <button onclick="checkStatus()" class="btn btn-secondary">🔍 Check Status</button>
+    <div id="status-result" class="result-box hidden"></div>
+  </section>
+
+  <!-- ================================ -->
+  <!-- List Sessions                    -->
+  <!-- ================================ -->
+  <section class="card" id="list-card">
+    <h2>📋 List Sessions</h2>
+    <button onclick="listSessions()" class="btn btn-secondary">📄 Refresh List</button>
+    <div id="list-result" class="result-box hidden"></div>
+    <table id="sessions-table" class="hidden">
+      <thead>
+        <tr>
+          <th>Session ID</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="sessions-tbody"></tbody>
+    </table>
+  </section>
+
+  <!-- ================================ -->
+  <!-- Check Number                     -->
+  <!-- ================================ -->
+  <section class="card" id="check-card">
+    <h2>🔎 Check Number</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="checkSessionId">Session ID</label>
+        <input type="text" id="checkSessionId" placeholder="my-session-1">
+      </div>
+      <div class="form-group">
+        <label for="checkNumber">Phone Number <small>(E.164 tanpa +)</small></label>
+        <input type="text" id="checkNumber" placeholder="628123456789">
+      </div>
+    </div>
+    <button onclick="checkNumberOnWA()" class="btn btn-primary">✅ Check Number</button>
+    <div id="check-result" class="result-box hidden"></div>
+  </section>
+
+  <!-- ================================ -->
+  <!-- Delete Session                   -->
+  <!-- ================================ -->
+  <section class="card" id="delete-card">
+    <h2>🗑️ Delete Session</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="deleteSessionId">Session ID</label>
+        <input type="text" id="deleteSessionId" placeholder="my-session-1">
+      </div>
+    </div>
+    <button onclick="deleteSession()" class="btn btn-danger">🗑️ Delete Session</button>
+    <div id="delete-result" class="result-box hidden"></div>
+  </section>
+
+  <footer>
+    <p>WhatsApp Session Manager API — Test Panel v1.0</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

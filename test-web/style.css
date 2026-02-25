@@ -1,0 +1,411 @@
+/* ==============================
+   Reset & Base
+   ============================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+  line-height: 1.6;
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ==============================
+   Header
+   ============================== */
+header {
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 24px;
+  background: linear-gradient(135deg, #075e54, #128c7e);
+  border-radius: 12px;
+  color: white;
+}
+
+header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 4px;
+}
+
+header .subtitle {
+  opacity: 0.85;
+  font-size: 0.95rem;
+}
+
+/* ==============================
+   Cards
+   ============================== */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8e8e8;
+}
+
+.card h2 {
+  font-size: 1.15rem;
+  margin-bottom: 16px;
+  color: #075e54;
+  border-bottom: 2px solid #f0f2f5;
+  padding-bottom: 8px;
+}
+
+/* ==============================
+   Form Elements
+   ============================== */
+.form-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #555;
+}
+
+.form-group label small {
+  font-weight: 400;
+  color: #999;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+  background: #fafafa;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #128c7e;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(18, 140, 126, 0.1);
+}
+
+/* ==============================
+   Buttons
+   ============================== */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: #128c7e;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #075e54;
+}
+
+.btn-secondary {
+  background: #f0f2f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+  background: #e5e7ea;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+}
+
+.btn-small {
+  padding: 5px 12px;
+  font-size: 0.8rem;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ==============================
+   Result Box
+   ============================== */
+.result-box {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 300px;
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+.result-box.success {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.result-box.error {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.result-box.info {
+  background: #d1ecf1;
+  border: 1px solid #bee5eb;
+  color: #0c5460;
+}
+
+/* ==============================
+   QR Code Display
+   ============================== */
+.qr-container {
+  text-align: center;
+  padding: 20px;
+  margin-top: 16px;
+}
+
+.qr-container img {
+  max-width: 300px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* ==============================
+   Pairing Code Display
+   ============================== */
+.pairing-code {
+  text-align: center;
+  padding: 20px;
+  margin-top: 16px;
+  background: #fff3cd;
+  border-radius: 8px;
+  border: 1px solid #ffc107;
+}
+
+.pairing-code span {
+  font-size: 0.9rem;
+  color: #856404;
+}
+
+.pairing-code strong {
+  display: block;
+  font-size: 2.2rem;
+  letter-spacing: 6px;
+  color: #1a1a2e;
+  margin: 8px 0;
+  font-family: 'Courier New', monospace;
+}
+
+.pairing-code .hint {
+  font-size: 0.8rem;
+  color: #856404;
+  margin-top: 8px;
+}
+
+/* ==============================
+   Connected Status
+   ============================== */
+.connected-status {
+  text-align: center;
+  padding: 20px;
+  margin-top: 16px;
+  background: #d4edda;
+  border-radius: 8px;
+  border: 1px solid #c3e6cb;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #155724;
+}
+
+/* ==============================
+   Socket Status Badge
+   ============================== */
+.status-badge {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge.connected {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.disconnected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.connecting {
+  background: #fff3cd;
+  color: #856404;
+}
+
+/* ==============================
+   Socket Log
+   ============================== */
+.log-box {
+  margin-top: 16px;
+  padding: 12px;
+  background: #1a1a2e;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.log-box h4 {
+  color: #aaa;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.log-box .log-entry {
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  padding: 2px 0;
+  border-bottom: 1px solid #2a2a4e;
+}
+
+.log-entry.event-qr { color: #61dafb; }
+.log-entry.event-pairing_code { color: #ffc107; }
+.log-entry.event-connected { color: #28a745; }
+.log-entry.event-disconnected { color: #dc3545; }
+.log-entry.event-info { color: #aaa; }
+
+/* ==============================
+   Table
+   ============================== */
+table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+thead {
+  background: #075e54;
+  color: white;
+}
+
+th, td {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+tbody tr:hover {
+  background: #f7f7f7;
+}
+
+td .status-pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-pill.connected { background: #d4edda; color: #155724; }
+.status-pill.connecting { background: #fff3cd; color: #856404; }
+.status-pill.qr_required { background: #d1ecf1; color: #0c5460; }
+.status-pill.code_required { background: #fff3cd; color: #856404; }
+.status-pill.closed { background: #f8d7da; color: #721c24; }
+
+/* ==============================
+   Footer
+   ============================== */
+footer {
+  text-align: center;
+  padding: 24px;
+  color: #999;
+  font-size: 0.8rem;
+}
+
+/* ==============================
+   Utility
+   ============================== */
+.hidden {
+  display: none !important;
+}
+
+/* ==============================
+   Responsive
+   ============================== */
+@media (max-width: 600px) {
+  body { padding: 12px; }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .form-group {
+    min-width: 100%;
+  }
+
+  header h1 {
+    font-size: 1.3rem;
+  }
+
+  .pairing-code strong {
+    font-size: 1.6rem;
+    letter-spacing: 4px;
+  }
+}
