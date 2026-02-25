@@ -1,0 +1,8 @@
+node_modules/
+sessions/*
+!sessions/.gitkeep
+.env
+*.log
+dist/
+.DS_Store
+Thumbs.db
